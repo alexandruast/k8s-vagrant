@@ -1,4 +1,33 @@
-etc_profile_vars: []
+base_packages:
+  - bash
+  - bc
+  - ca-certificates
+  - curl
+  - bind-utils
+  - ethtool
+  - git
+  - logrotate
+  - lsof
+  - mc
+  - NetworkManager
+  - net-tools
+  - ntp
+  - procps
+  - psmisc
+  - sysstat
+  - tcpdump
+  - telnet
+  - unzip
+  - vim
+  - yum-utils
+
+base_services:
+  - chronyd
+  - NetworkManager
+
+disabled_services:
+  - ntpd
+  - firewalld
 
 pam_limits:
   - domain: '*'

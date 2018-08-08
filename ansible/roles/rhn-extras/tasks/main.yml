@@ -1,6 +1,0 @@
-- block:
-  - name: "rhel extras repository enabled"
-    shell: "subscription-manager repos --enable={{rhel_extras_repo}}"
-    become: true
-    changed_when: false
-  when: repos_enabled|default(false)

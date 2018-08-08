@@ -1,6 +1,6 @@
 - hosts: all
   gather_facts: no
-  serial: "{{serial_value|default(1)}}"
+  serial: "100%"
 
   vars:
     - repos_enabled: true
@@ -17,19 +17,10 @@
         name: check-sudo
 
     - include_role:
-        name: housekeeping
-
-    - include_role:
         name: base
 
     - include_role:
-        name: jq
-
-    - include_role:
-        name: rsyslog
-
-    - include_role:
-        name: setup-completed
+        name: docker
 
     - include_role:
         name: kubernetes
