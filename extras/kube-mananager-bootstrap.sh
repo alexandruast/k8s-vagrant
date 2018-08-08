@@ -2,8 +2,8 @@
 set -eEuo pipefail
 trap 'RC=$?; echo [error] exit code $RC running $BASH_COMMAND; exit $RC' ERR
 
-K8S_MASTERS="$(echo $1 | jq -re .[].ip | tr '\n' ',' | sed -e 's/,$/\n/')"
-K8S_NODES="$(echo $2 | jq -re .[].ip | tr '\n' ',' | sed -e 's/,$/\n/')"
+KUBE_MASTERS="$(echo $1 | jq -re .[].ip | tr '\n' ',' | sed -e 's/,$/\n/')"
+KUBE_NODES="$(echo $2 | jq -re .[].ip | tr '\n' ',' | sed -e 's/,$/\n/')"
 
 SSH_CONTROL_SOCKET="/tmp/ssh-control-socket-$(uuidgen)"
 trap 'sudo ssh -S "${SSH_CONTROL_SOCKET}" -O exit vagrant@${!ip_addr_var:-192.0.2.255}' EXIT
@@ -37,6 +37,6 @@ which jq >/dev/null || install_jq
 
 cd /vagrant/
 
-ANSIBLE_TARGET="${K8S_MASTERS},${K8S_NODES}" \
+ANSIBLE_TARGET="${KUBE_MASTERS},${KUBE_NODES}" \
   ./apl-wrapper.sh ansible/target-kubernetes.yml
 
