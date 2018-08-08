@@ -7,9 +7,9 @@ Vagrant Kubernetes cluster
   ```
 
 - Join kube-master from kube-node1 and kube-node2 (replace token and hash)
-```
-sudo kubeadm join 192.168.169.201:6443 --token ftvmz5.f1b8p4quxim4wutf --discovery-token-ca-cert-hash sha256:0d5b5e67643c335056bc64d45f01dfbc05aa28a8a0256719f61b83b9645c2ff2
-```
+  ```
+  sudo kubeadm join 192.168.169.201:6443 --token ftvmz5.f1b8p4quxim4wutf --discovery-token-ca-cert-hash sha256:0d5b5e67643c335056bc64d45f01dfbc05aa28a8a0256719f61b83b9645c2ff2
+  ```
 
 - Run from kube-master
   ```
