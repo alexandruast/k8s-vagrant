@@ -1,2 +1,2 @@
-# kube-vagrant
+# k8s-vagrant
 Vagrant Kubernetes cluster
