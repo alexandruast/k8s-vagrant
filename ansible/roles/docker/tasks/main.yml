@@ -1,0 +1,91 @@
+- name: "include variables"
+  include_vars: "{{item}}"
+  with_first_found:
+    - files:
+        - "vars/{{ansible_distribution|lower}}.yml"
+      skip: true
+  tags: always
+
+- block:
+  - name: "docker repository added"
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docer-ce.repo
+    become: true
+    when: ansible_distribution|lower == 'redhat' or ansible_distribution|lower == 'centos'
+
+  - name: "docker packages installed"
+    package:
+      name: "{{item}}"
+      state: present
+    become: true
+    with_items:
+      - "{{docker_packages}}"
+  
+  when: not skip_install|default(false)
+
+- name: "docker groups present"
+  group:
+    name: "{{item}}"
+  with_items:
+    - docker
+  become: true
+
+- name: "{{ansible_user_id}} appended to docker groups"
+  user:
+    name: "{{ansible_user_id}}"
+    groups: docker
+    append: yes
+  register: docker_group
+  become: true
+
+- name: "net.ipv4.ip_forward is enabled"
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+  become: true
+
+- name: "shell profile scripts are in place"
+  copy:
+    src: "{{item}}"
+    dest: "{{ansible_env.HOME}}/profile.d/"
+  with_fileglob: "{{role_path}}/files/profile.d/*"
+  tags: env
+
+- name: "/etc/docker dir created"
+  file:
+    path: /etc/docker
+    state: directory
+    mode: 0755
+  become: true
+
+- name: "daemon config updated"
+  template:
+    src: "daemon.json.j2"
+    dest: "/etc/docker/daemon.json"
+    mode: 0644
+  become: true
+  register: daemon_config
+
+- name: "service enabled"
+  systemd:
+    name: docker
+    enabled: yes
+  become: true
+  
+- name: "service started"
+  systemd:
+    name: docker
+    state: started
+  become: true
+  register: service_started
+
+- name: "restart service"
+  systemd:
+    name: docker
+    state: restarted
+  become: true
+  when: (docker_group is changed
+        or daemon_config is changed)
+        and not service_started is changed

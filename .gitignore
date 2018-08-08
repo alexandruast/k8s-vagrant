@@ -1,0 +1,4 @@
+.workspace
+.vagrant
+*.stackdump
+*.retry

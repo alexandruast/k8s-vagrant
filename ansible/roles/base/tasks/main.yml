@@ -1,0 +1,90 @@
+- name: "include os variables"
+  include_vars: "{{item}}"
+  with_first_found:
+    - "vars/{{ansible_os_family|lower}}.yml"
+  tags: always
+
+- name: "system dirs created"
+  file:
+    path: "{{item}}"
+    recurse: true
+    state: directory
+  become: true
+  with_items:
+    - "{{system_dirs}}"
+
+- name: "user dirs created"
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0750
+  with_items:
+    - "{{user_dirs}}"
+
+- name: "base packages present"
+  package:
+    name: "{{item}}"
+    state: present
+  become: true
+  with_items:
+    - "{{base_packages}}"
+
+- name: "/etc/profile variables set"
+  lineinfile:
+    insertbefore: EOF
+    state: present
+    regexp: "^export {{item.key}}="
+    line: "export {{item.key}}={{item.value}}"
+    dest: /etc/profile
+  become: true
+  with_items:
+    - "{{etc_profile_vars}}"
+
+- name: "pam limits set"
+  pam_limits:
+    domain: "{{item.domain}}"
+    limit_type: "{{item.type}}"
+    limit_item: "{{item.limit}}"
+    value: "{{item.value}}"
+  become: true
+  with_items:
+    - "{{pam_limits}}"
+  
+- name: "sysctl values set"
+  sysctl:
+    name: "{{item.name}}"
+    value: "{{item.value}}"
+    sysctl_set: yes
+    reload: yes
+  become: true
+  with_items:
+    - "{{sysctl_entries}}"
+
+- name: "cron entries updated"
+  copy:
+    src: "{{item}}"
+    dest: "/etc/cron.d/"
+  with_fileglob: "{{role_path}}/files/etc/cron.d/*"
+  become: true
+
+- name: "unneeded services disabled and stopped"
+  systemd:
+    name: "{{item}}"
+    enabled: no
+    state: stopped
+  become: true
+  ignore_errors: true
+  with_items:
+    - "{{disabled_services}}"
+
+- name: "base services enabled and started"
+  systemd:
+    name: "{{item}}"
+    enabled: yes
+    masked: no
+    state: started
+  become: true
+  with_items:
+    - "{{base_services}}"
+
+
