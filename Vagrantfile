@@ -21,13 +21,6 @@ kube_nodes = [
     :box => box,
     :memory => 2400,
     :cpus => 2
-  },
-  {
-    :hostname => "kube-node2",
-    :ip => "192.168.169.212",
-    :box => box,
-    :memory => 2400,
-    :cpus => 2
   }
 ]
 
